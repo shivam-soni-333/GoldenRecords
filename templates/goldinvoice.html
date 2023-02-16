@@ -1,0 +1,140 @@
+
+<div class="result">    
+{% extends "header.html" %}
+{%block head%}
+   
+{%endblock%}
+{% block content%}
+    {% if invoice != "null" %}
+    <br>
+    <div class="form-group">
+        <label for="exampleInputEmail1">Search Invoice</label>
+        <div class="col-lg-6">
+            <input type="email" class="form-control md" id="search"  placeholder="Search">
+        </div>
+            <small id="emailHelp" class="form-text text-muted">Search By Invoice Number,Invoice Date(Format-YYYY-MM-DD),Invoice Total,Customer Name, Customer Phone Number</small>
+            <br>
+           
+      </div>
+    <br><br>
+    <div id="error" style=color:red></div>
+    <div class="main_table">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Invoice Number</th>
+                <th scope="col">Date</th>
+                <th scope="col">Customer Name</th>
+                <th scope="col">Customer Phone Number</th>
+                <th scope="col">Invoice Total</th>
+                <th scope="col">Visit</th>
+                <th scope="col">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for invo in invoice%}
+                <tr>
+                    <td>{{invo.invoice_number}}</td>
+                    <td>{{invo.invoice_date}}</td>
+                    <td>{{invo.customer_name}}</td>
+                    <td>{{invo.customer_phone_number}}</td>
+                    <td>{{invo.invoice_total}}</td>
+                    <td><a href="/generate_gold_invoice/{{invo.invoice_number}}" target=_blank>Visit</a></td>
+                    <td><a href="http://127.0.0.1:8000/admin/dashboard/invoice/{{invo.invoice_number}}/change/" target="_blank">Edit/Delete</a></td>
+                </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+    </div>
+   
+    <div class="response_table">
+        <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Invoice Number</th>
+                <th scope="col">Date</th>
+                <th scope="col">Customer Name</th>
+                <th scope="col">Customer Phone Number</th>
+                <th scope="col">Invoice Total</th>
+                <th scope="col">Visit</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody  class="response_table_body">
+            
+        </tbody>
+      </table>
+
+    </div>
+ 
+       
+    <script>
+        $(document).ready(function()
+        {   
+            
+            $(".response_table_body").html("")
+            $(".response_table").hide()
+            var oldVal = "";
+            $("#search").keyup(function()
+            {
+                var newVal = $(this).val();
+                if(newVal !="")
+                {
+               
+                    if(newVal!=oldVal)
+                    {
+        
+                        $("#error").html("")
+                        $(".response_table_body").html("")
+                       
+                        $(".main_table").show();
+                        $(".response_table").hide();
+                        token = '{{csrf_token}}'
+                        d = {}
+                        d['search'] =newVal;
+                        d = JSON.stringify(d);
+                        
+                        $.ajax({
+                            url:'gold_invoice',
+                            type:'POST',
+                            headers:{"X-CSRFToken":token},
+                            data:d,
+                            success:function(result)
+                            {
+                                if(result.length>0)
+                                {
+                                    oldVal=newVal;
+                                    $(".main_table").hide();
+                                    $(".response_table").show();
+                                    result.forEach(item=>
+                                    {
+                                        
+                                        $(".response_table_body").append("<tr><td>"+item['invoice_number']+"</td><td>"+item['invoice_date']+"</td><td>"+item['customer_name']+"</td><td>"+item['customer_phone_number']+"</td><td>"+item['invoice_total']+"</td><td><a href='/generate_gold_invoice/"+item['invoice_number']+"'>Visit</a></td><td><a href='http://127.0.0.1:8000/admin/dashboard/invoice/"+item['invoice_number']+"/change/' target='_blank'>Edit/Delete</a></td></tr>");
+                                 
+                                    });                            
+    
+                                }
+                                else
+                                {
+                                    $(".main_table").show();
+                                    $("#error").html("No Records Found")
+                                }
+                              
+                            }
+                        })
+                    }   // end if 81
+                }//end if block 78 
+               
+                else
+                {
+                    $(".main_table").show();
+                    $(".response_table").hide();
+                }//end if 78 
+            });
+
+        });
+    </script>
+       
+                
+    {% endif %}
+{%endblock%}

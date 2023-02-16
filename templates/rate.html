@@ -1,0 +1,155 @@
+{%extends "header.html"%}
+{%block content%}
+
+ {% if not user.is_authenticated %}
+   <meta http-equiv="REFRESH" content="0;url=http://127.0.0.1:8000/">
+ {%endif%}
+{% if rate != "null" %}
+<div class="row">
+    <div class="card" style="width: 18rem;">
+        <div class="card-body">
+        {%if rate != "null" %}
+            <h5 class="card-title">Today Gold Rate</h5>
+            <p class="card-text">Biskit : {{rate.gold_biskit_price}}</p>
+            <p class="card-text">22 KT : {{rate.gold_22_kt_price}}</p>
+            <p class="card-text">18 KT : {{rate.gold_18_kt_price}}</p>
+        {%else%}
+            <h3>Please Enter Today's Gold/Silver Rate</h3>
+        {%endif%}
+        </div>
+    </div>
+    <div class="card" style="width: 18rem;">
+        <div class="card-body">
+        {%if rate != "null" %}
+            <h5 class="card-title">Today Silver Rate</h5>
+            <p class="card-text">1KG : {{rate.silver_1kg_price}}</p>
+            <p class="card-text">1GM : {{rate.silver_1gm_price}}</p>
+        {%else%}
+            <h3>Please Enter Today's Silver Rate</h3>
+        {%endif%}
+        </div>
+    </div>
+    
+</div>
+
+{%endif%}
+<br>
+<h5 style="color:red">Biskit Price Should be 10 grams.</h5>
+<h5 style="color:red">Silver Price Should be in 1KG.</h5>
+<br>
+<form>
+    <div class="form-group">
+      <label for="exampleInputEmail1">Gold Rate (Biskit)</label>
+      <input type="number" class="form-control-md"  id="biskitprice" autocomplete=off placeholder="Gold Rate">
+      X
+      <input type="number" class="form-control-md" id="multiply" autocomplete="off" placeholder="95,92,..." value="95">
+      <button type="button" class="btn btn-primary btn-sm" id='calculategoldprice'>Calculate Gold Price</button>
+    </div>
+    <br>
+    <div class="form-group">
+      <label for="exampleInputPassword1">22KT Gold Price</label>
+      <input type="number" class="form-control-md" autocomplete=off id="22ktgold" placeholder="22KT Gold Price">
+    </div>
+    <br>
+    <div class="form-group">
+        <label for="exampleInputPassword1">18KT Gold Price</label>
+        <input type="number" class="form-control-md"autocomplete=off id="18ktgold" placeholder="18KT Gold Price">
+      </div>
+  </form><br>
+  <form>
+    <div class="form-group">
+      <label for="exampleInputEmail1">Silver Rate(1 kg)</label>
+      <input type="number" class="form-control-md"autocomplete=off id="silver_1kg_price" aria-describedby="emailHelp" placeholder="Silver Rate">
+      <button type="button" class="btn btn-primary btn-sm" id='calculatesilverprice'>Calculate Silver Price</button>
+    </div>
+    <br>
+    <div class="form-group">
+        <label for="exampleInputPassword1">Silver per gm price</label>
+        <input type="number" class="form-control-md" autocomplete=off id="silverprice" placeholder="Silver 1gm price">
+    </div>
+    <br>
+  </form>
+  <button  id="finalsubmit" class="btn btn-primary">Submit</button>
+  <script>
+      $(document).ready(function()
+      {
+        $("#calculategoldprice").click(function()
+        {
+            var biskit_price = $("#biskitprice").val();
+            var multiply  = $("#multiply").val();
+            if (biskit_price!="")
+            {
+                hm_22_price = parseInt(biskit_price)/100*parseInt(multiply);
+                hm_18_price = parseInt(biskit_price)/100*80;
+                hm_22_price = parseInt(hm_22_price/10);
+                hm_18_price=parseInt(hm_18_price/10);
+                $("#22ktgold").val(hm_22_price);
+                $("#18ktgold").val(hm_18_price);
+            }
+            else{
+                alert("empty");
+            }
+        });
+        $("#calculatesilverprice").click(function()
+        {   
+            var silver_1kg_price = $("#silver_1kg_price").val();
+            if (silver_1kg_price !="")
+            {
+                silver_price = parseInt(silver_1kg_price)/1000;
+                silver_price = parseInt(silver_price);
+                $("#silverprice").val(silver_price);
+            }
+            else
+            {
+                alert("emprty");
+            }
+                
+        });
+        $("#finalsubmit").click(function(e)
+        {
+            if(confirm("Are you sure?"))
+            {
+                
+                e.preventDefault(); 
+                var biskit_price = $("#biskitprice").val();
+                var silver_1kg_price = $("#silver_1kg_price").val();
+                var gold_22_kt_price = $("#22ktgold").val();
+                var gold_18_kt_price = $("#18ktgold").val();
+                var silver_per_gm_price = $("#silverprice").val();
+                if(biskit_price !="" && silver_1kg_price !="" && gold_22_kt_price !="" && gold_18_kt_price !="" && silver_per_gm_price !="")
+                {   d = {}
+                    d['biskit_price'] = biskit_price/10;
+                    d['silver_1kg_price'] = silver_1kg_price;
+                    d['gold_22_kt_price'] = gold_22_kt_price;
+                    d['gold_18_kt_price'] = gold_18_kt_price;
+                    d['silver_per_gm_price'] = silver_per_gm_price;
+                    d = JSON.stringify(d);
+                    token = '{{csrf_token}}';
+                    $.ajax({
+                    url:"rate",
+                    type:"POST",
+                    data:d, 
+                        headers :{'X-CSRFToken':token},
+                    success:function(result)
+                    {
+                        alert(result);
+                        $("#biskitprice").val("");
+                        $("#silver_1kg_price").val('');
+                        $("#22ktgold").val('');
+                        $("#18ktgold").val('');
+                        $("#silverprice").val('');
+                        location.reload();
+                    } 
+                    });
+                }
+                else
+                {
+                    alert("Empty Fields");
+                }
+            }
+            
+        });
+      });
+  </script>
+
+{%endblock content%}

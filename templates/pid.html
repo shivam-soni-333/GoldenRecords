@@ -1,0 +1,67 @@
+{% extends "header.html" %}
+{%block content%}
+
+ {% if not user.is_authenticated %}
+   <meta http-equiv="REFRESH" content="0;url=http://127.0.0.1:8000/">
+ {%endif%}
+<br>
+<center>
+    <h1 style='color:green'>Free Product ID</h1>
+</center>
+
+<form method="POST">
+  {% csrf_token %} 
+<div class="form-group">
+
+  <label for="exampleInputEmail1">Search Single character From A to Z</label>
+  <div   class="col-lg-6">
+      <input type="text" class="form-control md" name="search_term" id="search"  placeholder="Search">
+      <button class="btn btn-primary">Search</button>
+      Range
+      <select name="range">
+          <option value="1-100">1-100</option>
+          <option value="101-200">101-200</option>
+          <option value="201-300">201-300</option>
+          <option value="301-400">301-400</option>
+          <option value="401-500">401-500</option> 
+      </select>
+      
+  </div>
+      <small id="emailHelp" class="form-text text-muted">Search By A TO Z</small>
+      <br>
+</div>    
+</form>
+
+
+<span style="float:right;"><a href="http://127.0.0.1:8000/admin/dashboard/product/add/" target="_blank"><button class="btn btn-success btn-sm">Add Product</button></a></span><br>
+<form>
+  {%if data%}
+          <button class="btn btn-info" >CLEAR</button>
+  {%endif%}
+</form>
+{% if error %}
+<div class="error" style=color:red id="error">
+       Invalid input please enter character from A to Z.
+</div>
+{%endif%}
+
+{%if data%}
+
+  <div class="card" style="width: 80rem;">
+    <ul class="list-group list-group-flush">
+      <center>
+      {%for i in data%}  
+          <li class="list-group-item" style='color:green'><b>{{i}}</b></li>      
+      {%endfor%}  
+      
+    </ul>
+  </div>
+{%endif%}
+
+<script>
+  $(document).ready(function()
+  {
+    $("#search").focus();
+  });
+</script>
+{%endblock%}

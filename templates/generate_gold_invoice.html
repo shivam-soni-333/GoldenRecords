@@ -1,0 +1,536 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>gold_invoice_{{invoice.invoice_number}}</title>
+		<style>
+			{% if invoice.is_estimate == "0" %}
+				table{
+					background:url("{% static 'bg.jpeg' %}") ;background-repeat:  no-repeat; background-position: center;backface-visibility: initial;
+				}
+			{%endif%}
+			.invoice {
+				text-align: right;
+			}
+			.customer{
+				text-align: left;
+			}
+			table{
+				width: 100%;
+			}
+			table {border:2px solid #800000;padding: 25px 50px 75px 100px;}
+			.blank_row
+			{
+			    height: 10px !important; /* overwrites any other rules */
+			}
+
+			.product{
+				text-align: right;
+			}
+			@media print {
+			  #printPageButton {
+			    display: none;
+			  }
+			}
+			.print{
+				padding-top: 10;
+			}
+			.vertical {
+            border-left: 2px solid black;
+            height: 10px;
+          
+         }
+         .shop{
+         	border-bottom: 2px solid #800000;
+         }
+         ./*bg{
+         	background:url("{% static 'bg.jpeg' %}");
+         	background-repeat: no-repeat;
+         	backface-visibility:hidden;
+         	background-position: center;"
+         }*/
+         @media print {
+			.bg,body {
+			    visibility: visible;
+			    /* The image used */
+			    background-image: url("{% static 'bg.jpeg' %}");
+			    /* Full height */
+			    height: 100%;
+			    /* Center and scale the image nicely */
+			    background-position: center;
+			    background-repeat: no-repeat;
+			    background-size: inherit;
+			    -webkit-print-color-adjust: exact;
+			   }
+			}
+			
+		</style>
+		<link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css">
+	</head>
+
+	<body class="body" >
+
+		<center>
+			<a  id="printPageButton" href="/gold">Back to Gold</a>
+	<a onclick="display()" id="printPageButton" class="print">Click to Print</a>
+      <script>
+         function display() {
+            window.print();
+         }
+      </script>
+  </center>
+  
+  <span><center style="text-align: center;"><img src="{% static 'shri_sava.jpg' %}" width="50" height="50"></img></center></span>
+	 {% if invoice.is_estimate == "0" %}
+	  <span style="font-size: 15px;color: black ;"><b>GST Number:- {{shop.gst_number}}</b></span>
+	 {%endif%}
+	{% if invoice.is_estimate == "0" %}  
+  <span style="float: right;font-size: 15px;color: black"><b>BIS Hallmark No:- 
+  {{shop.bis_hm_number}}</b></span>
+  <div class="shop" >
+  	<center><p style="font-size: 40px;font-family: New Century Schoolbook, TeX Gyre Schola, serif;color: #800000;">{{shop.name}}
+  		<span style="float:left;"><img src="{% static 'dark_logo.jpeg' %}" width="80" height="70"></img></span>
+  		<span style="float:right;"><img src="{% static 'bis.png' %}" width="50" height="50"></img></span>
+  	</p></center>
+  	{%else%}
+  	<center><span style="font-size: 40px;color:#800000;"><b>Estimate</b></span></center>
+  	{%endif%}
+  </div>
+  <p>
+  	{% if invoice.is_estimate == "0" %}
+	  	<center>
+		<span style="font-size: 20px;font-family: New Century Schoolbook, TeX Gyre Schola, serif;color: #800000;">{{shop.address}}  Contact :- {{shop.phone_number}} / {{shop.phone_number_2}}
+		</span></center>
+		{%endif%}
+	</p>
+  <br>
+	<div class="main">
+			<p style="text-align: left;border: 2px solid #800000;">
+							<span  style="float: right;">
+									
+								{% if invoice.is_estimate == "0" %}
+
+								<b>Gold Invoice No :- {{invoice.invoice_number}}<br>
+								{%endif%}
+								Date :- {{invoice.invoice_date}}</b>
+							</span>
+				<b>Customer Name :- {{invoice.customer_name}} 
+				<br>
+				
+				Contact No:- {{invoice.customer_phone_number}}
+				 	<br>
+				 	{% if customer.pan_number != None   %}
+				 		Pan Number :- {{invoice.pan_number}}
+				 	{%else%}
+				 		Pan number :- 
+				 	{%endif%}
+								</b><br>
+					<b>{% if invoice.gst_number != "null" or invoice.gst_number != None %}
+						GST Number :- {{invoice.gst_number}}
+					{%else%}
+						GST Number :- 
+					{%endif%}</b>
+			</p>
+
+	<table class = "bg">
+			<tr>
+				<th style="border-right:2px solid;color:#800000;border-bottom:2px solid;color:#800000">Product Name</th>
+				<th style="border-right:2px solid ;color:#800000;border-bottom:2px solid;color:#800000" >HSN</th>
+				<th style="border-right:2px solid ;color:#800000;border-bottom:2px solid;color:#800000" >HM/HUID</th>
+				<th style="border-right:2px solid ;color:#800000;border-bottom:2px solid;color:#800000" >Gross Weight</th>
+				<th style="border-right:2px solid ;color:#800000;border-bottom:2px solid;color:#800000" >Net Weight</th>
+				<th style="border-right:2px solid;color:#800000;border-bottom:2px solid;color:#800000">Carat</th>
+				<th style="border-right:2px solid ;color:#800000;border-bottom:2px solid;color:#800000" >GoldRate(1GM)</th>
+				
+				<th style="border-right:2px solid;color:#800000;border-bottom:2px solid;color:#800000">Other Charges</th>
+				<th style="border-right:2px solid ;color:#800000;border-bottom:2px solid;color:#800000">Total</th>
+			</tr>
+			<tbody>
+			
+			{% for i in invoice_detail%}
+			
+				<tr class="details">
+					<td  style="border: 1px solid #800000;"><b>{{i.product_name}}</td>
+					{% if i.carat == "22K" %}
+						<td  style="border: 1px solid #800000;"><b>7113</td>
+					{%elif i.carat == "24K" %}
+						<td  style="border: 1px solid #800000;"><b>7114</td>
+					{%else%}
+						<td  style="border: 1px solid #800000;"><b>7113</td>
+					{%endif%}
+					<td style="border: 1px solid #800000;"><font size="4"><b>{{i.hm_code}}</font></td>
+					<td style="border: 1px solid #800000;"><b>{{i.grossweight}}</td>
+					<td style="border: 1px solid #800000;"><b>{{i.netweight}}</b></td>
+					<td style="border: 1px solid #800000;"><b>{{i.carat}}</td>
+					<td style="border: 1px solid #800000;"><b>{{i.gold_rate}}</td>
+					  {% if i.other_charge != 0.0 %}
+					   	<td style="border: 1px solid #800000;"><b>{{i.other_charge}}</td>
+					   {%else%}
+					   	<td style="border: 1px solid #800000;"><b>-</td>
+					   {%endif%} 
+					<td style="border-left: 1px solid #800000;border-right: 1px solid #800000;border-bottom: 1px solid #800000;border-right: 2px solid #800000;"><b>{{i.total}} </b></td>
+					
+				</tr>
+				{%endfor%}
+				{%if invoice_detail_count == 1%}
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+				{%elif invoice_detail_count == 2%}
+					
+					
+					
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+				{% elif invoice_detail_count == 3 %}
+					
+				
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+				{%elif invoice_detail_count == 4 %}
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+				
+				{%elif invoice_detail_count == 5 %}
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+					<tr class="blank_row">
+				    	<td colspan="30"></td>
+					</tr>
+				
+				{%endif%}
+				
+				</tbody>
+		</table>
+		{% if invoice.is_estimate == "0" %}
+		<div style="border-left: 2px solid #800000;color: #800000;border-right: 2px solid #800000;color: #800000;border-bottom: 2px solid #800000;color: #800000;"><span><b>Ruppes In Words :- {{word}}</b></span></div>
+		{%endif%}
+		<p style="text-align: right;border-bottom: 2px solid #800000;border-left: 2px solid #800000;border-right: 2px solid #800000;">
+				
+				</span>
+				
+				<!-- <br> --><!-- 
+				<span style="float: left;"></span> -->
+			
+				<b><span style="color: #800000;">Product Total</span> :- <span style="color:black;">{{invoice.product_total}}</span><br>
+					{% if invoice.is_estimate == "0" %}
+					<span style="color:#800000;">CGST 1.5%</span> :- <span style="color:black;">{{invoice.cgst}}</span><br>
+					<span style="color:#800000;">SGST 1.5%</span> :- <span style="color:black;">{{invoice.sgst}}</span><br>
+					
+					<span style="color:#800000;">Invoice Total
+					</span>:-<span style="color:black;">{{invoice.invoice_total}}
+					
+					</span>
+					{%endif%}
+		</p>
+			
+		
+		{% if invoice.is_estimate == "0" %}
+			<span style="text-align: left;">Thank you Visit Again!</b><span style="font-size: 10px;"><br>Subject to jamnagar Jurisdication only.<br>Including Gst Hallmark charges.<br>We provide guarantee of gold purity not any other characteristics.</span>
+			
+			<span style="float:right;">Authorize Signatures</span>
+		{%endif%}
+	
+
+		
+	</div>
+	</body>
+</html>

@@ -1,0 +1,205 @@
+{% extends "header.html" %}
+{%load static%}
+
+{%block head%}
+<style>
+    .card{
+        margin-left: 20px;
+    }
+    html { overflow-x: hidden; }
+</style>
+{%endblock%}
+{%block content%}
+    {% if user.is_authenticated %}
+    <center><h3>hi!!! {{user.username}}</h3> </center>
+    <div class="row">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">Today Gold Rate</h5>
+            {%if rate != "null" %}
+                <p class="card-text">Biskit : {{rate.gold_biskit_price}}</p>
+                <p class="card-text">22 KT : {{rate.gold_22_kt_price}}</p>
+                <p class="card-text">18 KT : {{rate.gold_18_kt_price}}</p>
+            {%else%}
+                <h3 style=color:red>Please Enter Today's Gold Rate</h3>
+            {%endif%}
+            </div>
+        </div>
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">Today Silver Rate</h5>
+            {%if rate != "null" %}
+                <p class="card-text">1KG : {{rate.silver_1kg_price}}</p>
+                <p class="card-text">1GM : {{rate.silver_1gm_price}}</p>
+            {%else%}
+                <h3 style=color:red>Please Enter Today's Silver Rate</h3>
+            {%endif%}
+            </div>
+        </div>
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">Gold Selling</h5>
+            {% if invoice != "null" %}
+                <h6 class="card-subtitle mb-2 text-muted">Only Today</h6>
+                <p class="card-text">{{invoice}}</p>
+            {%else%}
+            <p>No Gold selling history</p>
+            {%endif%}
+            </div>
+          </div>
+          <div class="card" style="width: 18rem;">
+            <div class="card-body">
+            {% if silver_invoice != "null" %}
+                <h5 class="card-title">Silver Selling</h5>
+                <h6 class="card-subtitle mb-2 text-muted">Only Today</h6>
+                <p class="card-text">{{silver_invoice}}</p>
+            {%else%}
+            <p>No Silver selling history</p>
+            {%endif%}
+            </div>
+          </div>
+          
+    </div><br>
+
+    <div class="btn_stock">
+        <button class="btn btn-primary" id="btn_stock">Show Stock</button><br>
+    </div>
+    <div class="row" id = "stock">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">Total Gold Stock</h5>
+                
+            {%if product != "null" and product_weight != "null" %}
+                <br>
+                <p class="card-text"><b>Count : {{product}}</b></p>
+                <p class="card-text"><b>Weight : {{product_weight}} Grams </b></p>
+                
+            {%else%}
+                <h3 style=color:red>No Gold Products</h3>
+            {%endif%}
+            </div>
+        </div>
+
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                 <h5 class="card-title">Total Gold 22 Stock</h5>
+               
+            {%if product != "null" and product_weight != "null" %}
+                <br>
+               
+                <!-- 22 -->
+                <p class="card-text"><b>Count : {{product_22}}  </b></p>
+                <p class="card-text"><b>22K Weight : {{product_weight_22}} Grams </b></p>
+
+               
+            {%else%}
+                <h3 style=color:red>No Gold 22K  Products</h3>
+            {%endif%}
+            </div>
+        </div>
+
+         <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">Total Gold 18 Stock</h5>
+            {%if product != "null" and product_weight != "null" %}
+                <br>
+               
+                <!-- 22 -->
+                <p class="card-text"><b>Count : {{product_18}}  </b></p>
+                <p class="card-text"><b>22K Weight : {{product_weight_18}} Grams </b></p>
+
+               
+            {%else%}
+                <h3 style=color:red>No Gold 18K  Products</h3>
+            {%endif%}
+            </div>
+        </div>
+
+
+         <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <br>
+                <button class="btn btn-primary" id="hide_stock">Hide Stock</button>
+                <br>
+            </div>
+        </div>
+    </div>
+    <br>
+
+    <!-- <div class="btn_income">
+        <button class="btn btn-primary" id="btn_income">Show Income</button><br>
+    </div>
+    <div class="row" id="income">
+       
+
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">Today's Income/Expense</h5>
+                {% if balance != "null" %}
+                    <p class="card-text"><b>Cash : {{balance}}</b></p>
+                {%endif%}
+                {%if today_income != "null"  %}
+                    <p class="card-text"><b>Income : {{today_income}}</b></p>
+                {%endif%}
+                
+                {% if expense != "null" %}
+                    <p class="card-text"><b>Expense : {{expense}}</b></p>
+                {%endif%}
+            </div>
+        </div>
+             <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <br>
+                <button class="btn btn-primary" id="hide_income">Hide income</button>
+                <br>
+            </div>
+        </div>
+    </div>
+     -->    </div>
+        
+     <div class="row" id = "stock">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title"><img src="/static/statement.jpg" width="60" height="60">Statements</img></h5>
+                
+                <br>
+                <p class="card-text"><a href="one_month_statement" ><b>Gold Invoice Statement</b></a></p>
+                <p class="card-text"><a href="one_month_silver_statement" ><b>Sliver  Invoice Statement</b></a></p>
+            </div>
+        </div>
+
+    </div>
+    
+    <script type="text/javascript">
+        $(document).ready()
+        {
+            $("#stock").hide()
+            $("#income").hide()
+            $("#btn_stock").click(function()
+            {
+                $("#stock").show();
+                $("#btn_stock").hide();
+            });
+
+            $("#hide_stock").click(function()
+            {
+                $("#stock").hide();
+                $("#btn_stock").show();
+            });
+            // $("#btn_income").click(function()
+            // {
+            //     $("#income").show();
+            //     $("#btn_income").hide();
+            // });
+            // $("#hide_income").click(function()
+            // {
+            //     $("#income").hide();
+            //     $("#btn_income").show();
+            // })
+        }
+    </script>
+    
+    {% else %}
+    <meta http-equiv="REFRESH" content="0;url=http://127.0.0.1:8000/">
+    {% endif %}
+{%endblock%}

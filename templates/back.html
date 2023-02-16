@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Gold Invoice</title>
+
+		<style>
+			.body{
+				background-image: url("http://127.0.0.1:8000/static/logo.png");
+			}
+			.invoice-box {
+				max-width: 800px;
+				margin: auto;
+				padding: 30px;
+				border: 1px solid #eee;
+				box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+				font-size: 16px;
+				line-height: 24px;
+				font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+				color: #555;
+			}
+
+			.invoice-box table {
+				width: 100%;
+				line-height: inherit;
+				text-align: left;
+			}
+
+			.invoice-box table td {
+				padding: 5px;
+				vertical-align: top;
+			}
+
+			.invoice-box table tr td:nth-child(2){
+				text-align: right;
+			}
+
+            .invoice-box .table-2 tr td:nth-child(5){
+				text-align: right;
+			}
+            .invoice-box .table-2 tr td:nth-child(4){
+				text-align: right;
+			}
+            .invoice-box .table-2 tr td:nth-child(2){
+				text-align: right;
+			}
+            .invoice-box .table-2 tr td:nth-child(3){
+				text-align: right;
+			}
+
+			.invoice-box table tr.top table td {
+				padding-bottom: 20px;
+			}
+
+			.invoice-box table tr.top table td.title {
+				font-size: 45px;
+				line-height: 45px;
+				color: #333;
+			}
+
+			.invoice-box table tr.information table td {
+				padding-bottom: 40px;
+			}
+
+			.invoice-box table tr.heading td {
+				background: #eee;
+				border-bottom: 1px solid #ddd;
+				font-weight: bold;
+			}
+
+			.invoice-box table tr.details td {
+				padding-bottom: 20px;
+			}
+
+			.invoice-box table tr.item td {
+				border-bottom: 1px solid #eee;
+			}
+
+			.invoice-box table tr.item.last td {
+				border-bottom: none;
+			}
+
+			.invoice-box table tr.total td:nth-child(2) {
+				border-top: 2px solid #eee;
+				font-weight: bold;
+			}
+
+			@media only screen and (max-width: 600px) {
+				.invoice-box table tr.top table td {
+					width: 100%;
+					display: block;
+					text-align: center;
+				}
+
+				.invoice-box table tr.information table td {
+					width: 100%;
+					display: block;
+					text-align: center;
+				}
+			}
+
+			/** RTL **/
+			.invoice-box.rtl {
+				direction: rtl;
+				font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+			}
+
+			.invoice-box.rtl table {
+				text-align: right;
+			}
+
+			.invoice-box.rtl table tr td:nth-child(2) {
+				text-align: left;
+			}
+            .au{
+                text-align: right;
+            }
+			.ua{
+				text-align:left;
+			}
+		</style>
+	</head>
+
+	<body class="body">
+		
+		<div class="invoice-box">
+			<table cellpadding="0" cellspacing="0">
+				<tr class="top">
+					<td colspan="2">
+						<table>
+							<tr>
+								<td class="title">
+									<img src="http://127.0.0.1:8000/static/logo.png" height="90" width="300" />
+								</td>
+
+								<td class="au">
+									Invoice #: {{invoice.invoice_number}}<br />
+									Date:{{invoice.invoice_date}}
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+
+				<tr class="information">
+					<td colspan="2">
+						<table>
+							<tr>
+								<td>
+									{% if shop != "null" %}
+									{{shop.name}}<br />
+									{{shop.address}}<br>
+									GST Number:-{{shop.gst_number}}
+									{%else%}
+									<h3 style="color:red">Please tell admin to  Enter Shop Details.</h3>
+									{%endif%}
+								</td>
+
+								<td class="au">
+									Customer Name: {{customer.customer_name}}<br />
+									Contact No: {{customer.customer_phone_number}}<br />
+									Pan Number : {%if customer.pan_number == "null" %}
+									--
+									{%else%}
+									{{customer.pan_number}}
+									{%endif%}
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+            </table>
+            <table class="table-2" cellpadding="0" cellspacing="0">
+				<tr class="heading">
+					<td>Product Name</td>
+					<td>HM Code  </td>
+					<td>Gross Weight</td>
+                    <td>Net Weight</td>
+                    <td>Carat</td>
+                    <td>Gold Rate</td>
+					<td>Total</td>
+				</tr>
+
+				{% for i in invoice_detail%}
+			
+				<tr class="details">
+					<td>{{i.product_name}}</td>
+					<td><font size="4">{{i.hm_code}}</font></td>
+					<td>{{i.grossweight}}</td>
+					<td>{{i.netweight}}</td>
+					<td>{{i.carat}}</td>
+					<td>{{i.gold_rate}}</td>
+					<td>{{i.total}}</td>
+				</tr>
+				{%endfor%}
+            </table>
+			
+			<div class="au">
+				Product Total :- {{invoice.product_total}}<br>
+				CGST :- {{invoice.cgst}}<br>
+				SGST :- {{invoice.sgst}}<br>
+				Invoice Total :- {{invoice.invoice_total}}
+			</div>	
+			<div class="au">
+				<span>Authorized sigunature</span>
+            </div>
+			<span class="information">Thank You Visit Again!</span>
+			
+		</div>
+	</body>
+</html>

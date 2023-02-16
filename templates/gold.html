@@ -1,0 +1,610 @@
+
+{% extends "header.html" %}
+{% load static %}
+{% block head%}
+    <script src="static/js/jquery.min.js"></script>
+    <script src="static/js/jquery-1.12.4.js"></script>
+    <script src="static/js/jquery-ui.js"></script>
+    <link href="static/css/jquery-ui.css"
+    rel="Stylesheet" type="text/css" />
+    <style>
+        table, th, td {
+          border: 1px solid black;
+          padding: 5px;
+        }
+        table {
+          border-spacing: 15px;
+        }
+        
+        .customerarea{
+            /* border-style:solid; */
+            display: inline-block;
+            border:2px solid black;
+            padding-left: 50px;
+            padding-right: 50px;
+            padding-top: 0px;
+            padding-bottom: 0px;
+            width: 50%;
+        }
+        .customerarea>input{
+            margin-top: 10px ;
+            margin-bottom:10px
+            
+        }
+        
+        .search_product{
+            margin:10px auto;
+            border: 2px solid;
+            width: 50%;
+            padding: 20px 20px;
+        }
+
+        .product{
+            margin:0px auto;
+            width: 50%;
+            border: 2px solid ;
+        }
+        .product>input{
+            margin:20px 20px;
+        }
+        .ui-menu-item
+        {
+            background-color:aqua  !important;
+        }
+
+        input[type=radio] {
+                border: 0px;
+                width: 2.5%;
+                height: 2em;
+        }
+        .producttable{
+            width:50%;
+            border:2px solid;
+            margin:0px auto;
+        }
+        th{
+            padding:20px 15px;
+        }
+        table{
+            margin-left:10px;
+        }
+        body{
+            background-image:url("./static/bg.jpeg");
+            background-repeat:no-repeat	;
+            background-position: 50%;
+            background-size:auto;
+            
+        }
+        </style>
+    {% endblock%}
+{% block content%}
+ {% if not user.is_authenticated %}
+   <meta http-equiv="REFRESH" content="0;url=http://127.0.0.1:8000/">
+ {%endif%}
+<center><h1>Gold Invoice</h1></center>
+   <center>
+        <div class="customerarea">   
+               
+                Customer Name <input id="customer_name" type="text" name="customername" placeholder="Customername"></input>
+                Phone Number <input type="number" id="contact_no" name="number" placeholder="phone no "></input><br><br>
+                Pan Number <input type="text" id="pan_no" value="" placeholder="PANCARD"></input>
+                GST Number <input type="text" id="gst_no" value="" placeholder="GST Number"></input>
+            
+        </div></center>
+    <br>
+    <div class="search_product">
+    
+        Product ID:- <input type="text" id="product_id" ></input>
+        <button id="search_product" class="btn btn-primary">Search</button>
+        <span style="font-size: 20px;">Estimate Receipt <select id="is_estimate">
+            <option value="1">Yes</option>
+            <option value="0" selected>No </option>
+        </select>
+        </span>
+       
+    </div>
+    
+    <br>
+    <div class="product">
+        <br>
+        <center><input type="radio"  value="pergram" name="labour" checked>Labour Per Gram</input>    <input type="radio" value="mrp" name="labour" >MRP Based</input></center><br>
+        Product Name<input type="text" id="product_name">GrossWeight<input type="number" id="grossweight"></input>NetWeight<input type="number" id="weight"></input><br><br>{%if gold_rate != "null"%}
+        Gold Rate
+        <!-- <input type="text" name="gold_rate_name"  list="gold_rate_name" id="gold_rate" >
+            <datalist id="gold_rate_name" >
+                <option id=1 data-value="1">{{gold_rate.gold_22_kt_price}}</option>
+                <option id="2">{{gold_rate.gold_18_kt_price}}</option>
+                <option id="3">{{gold_rate.gold_biskit_price}}</option>
+            </datalist>        
+        </input> -->
+        
+         <select id="gold_rate"style="margin-left:43px;margin-right:15px;width:20%">
+            <option value="1">{{gold_rate.gold_22_kt_price}}</option>
+            <option value="2">{{gold_rate.gold_18_kt_price}}</option>
+            <option value="3">{{gold_rate.gold_biskit_price}}</option>
+        </select> 
+
+
+        {%else%}
+        <h6 style="color:red">Please Input Today's Gold Rate</h6>
+        {% endif %}
+        Labour<input type="text" id="labour" style="margin-left:60px"></input>Carat<select id="carat" style="margin-left:60px;"><option value="1">22K</option><option value="2">18K</option><option value="3">24K</option></select> <br><br>
+        HM Code<input type="text" autocomplete=off id="hm_code" value="4DIGIT" placeholder="Hall Mark code"></input>
+        Other Charge
+        <input type="number" autocomplete="off" id="other_charge" value="0"></input>
+        <br>
+        <br><center><button id="add_pro">Add Product</button>&ensp;<button id="estimate_val" accesskey="e">Estimate</button>&ensp;<button id="clear"accesskey="c">CLEAR</button></center>
+        <div id="estimate">
+            
+        </div>
+        <br><br>
+    </div>
+    <br>
+    <div class="producttable">
+        <br>
+        <table id="table" border="3">
+            <thead>
+            
+                <th>Product name</th>
+                <th>HM Code</th>
+                <th>GrossWeight</th>
+                <th>NetWeight</th>
+                <th>Carat</th>
+                <th>goldrate</th>
+                <th>Labour</th>
+                <th>Other Charge</th>
+                <th>total</th>
+               
+            </thead>
+            <tr>
+
+            </tr>
+        </table><br><br>
+        Item Total <input type="text" value="0" id="total" autocomplete=off></input>
+        SGST <input type="text" value="0" id="sgst" autocomplete=off></input>
+        CGST<input type='text' id="cgst" value="0" autocomplete=off></input>
+        Total <input type="text" id="grandtotal" value="0" autocomplete=off></input>
+        <br><br>
+    </div>
+    <br>
+<center><button  id="finalsubmit" class="btn btn-primary">Submit</button></center>
+</div>
+ 
+<script>
+    $(document).ready(function()
+    {
+       
+        var counter = 1;
+        const total = [],delete_row = [];
+        $("#hm_code").focus(function()
+        {
+            $("#hm_code").val("");
+         
+        }); //end h_code focus
+        $("#other_charge").focus(function()
+        {
+            $("#other_charge").val("");
+        }); //end
+
+        $("#estimate_val").click(function()
+        {
+            grossweight = $("#grossweight").val();
+            weight = $("#weight").val();
+            gold_rate = $("#gold_rate").find(":selected").text();
+            labour = $("#labour").val();
+            carat = $("#carat").find(":selected").text();
+            var radioValue = $("input[name='labour']:checked").val();
+            other_charge = $("#other_charge").val();
+
+            if (  grossweight !="" && weight  !="" && gold_rate !="" && labour != ""  && carat != "" && other_charge !="")
+            {
+                if (radioValue =="pergram")
+                {
+                    //pergram --> (gold_rate+labour)*weight
+
+                    var temp_var = parseInt(gold_rate)+parseInt(labour);
+                    total_this = temp_var * parseFloat(weight);
+                    total_this = total_this + parseFloat(other_charge);
+                   //    total_this = Math.round(total_this);
+                    gst_total =Math.round(total_this+(total_this*3/100));
+                    $("#estimate").html("<h6>Product Total : "+total_this+"</h6><h6>Total With GST:"+gst_total+"</h6>")
+                   
+                
+                }//end if radiovalue == pergram
+                else
+                {
+                    //mpr based -->weight*gold_rate + mrp(labour)
+                    var temp_var = parseInt(gold_rate)*parseFloat(weight);
+                    total_this = temp_var+parseInt(labour);
+                    total_this = total_this +  parseFloat(other_charge);
+                    //total_this = Math.round(total_this);
+                    gst_total =Math.round(total_this+(total_this*3/100));
+                    $("#estimate").html("<h6>Product Total : "+total_this+"</h6><h6>Total With GST:"+gst_total+"</h6>")
+                   
+                }//end else if radiovalue pergram
+            }//end if not Empty
+            else
+            {
+                alert("Empty")
+            }
+           
+        }) //end estimate_val click
+
+        function updatetotal()
+        {
+            let sum = 0,diff=0;
+            for(i=0;i<total.length;i++)
+            {
+                sum +=  total[i];
+            }
+            for (i=0;i<delete_row.length;i++)
+            {
+                diff += delete_row[i];
+            }
+            sum = sum- diff;
+            sum = Math.round(sum);
+            $("#total").val(sum);
+            updategst();
+        }
+        function updategst()
+        {
+            total_val = $("#total").val();
+            gst = parseInt(total_val)*3/100;
+            gst = gst/2;
+            $("#sgst").val(gst);
+            $("#cgst").val(gst);
+            updatefinaltotal();
+        }
+        function updatefinaltotal()
+        {
+            total_val = $("#total").val();
+            sgst = $("#sgst").val();
+            cgst = $("#cgst").val();
+            grand_total = parseFloat(total_val) + parseFloat(sgst) + parseFloat(cgst) ;
+            grand_total = Math.round(grand_total);
+            $("#grandtotal").val(grand_total);
+        }
+        $("#clear").click(function()
+        {
+            product_name = $("#product_name").val('');
+            hm_code = $("#hm_code").val('.');
+            grossweight = $("#grossweight").val('');
+            weight = $("#weight").val('');
+            labour = $("#labour").val('');
+            $("#estimate").html('');
+            $("#other_charge").val('0');
+            
+        });
+        $("#add_pro").click(function()
+        {
+            customer = $("#customer_name").val();
+            phone = $("#contact_no").val();
+            product_name = $("#product_name").val();
+            hm_code = $("#hm_code").val();
+            grossweight = $("#grossweight").val();
+            weight = $("#weight").val();
+            gold_rate = $("#gold_rate").find(":selected").text();
+            labour = $("#labour").val();
+            carat = $("#carat").find(":selected").text();
+            other_charge = $("#other_charge").val();
+            var radioValue = $("input[name='labour']:checked").val();
+            
+            if ( product_name !=""&&hm_code !="" && grossweight !="" && weight  !="" && gold_rate !="" && labour != ""  && carat != "")
+            {
+                $("#hm_code").val('4DIGIT');
+                if (radioValue =="pergram")
+                {
+                    //pergram --> (gold_rate+labour)*weight
+                    var temp_var = parseInt(gold_rate)+parseInt(labour);
+                    total_this = temp_var * parseFloat(weight);
+                    total_this = total_this + parseFloat(other_charge);
+                    total_this = Math.round(total_this);
+                    total.push(total_this);
+                
+                    $("#table").append('<tr><td>'+product_name+'</td><td>'+hm_code+'</td><td>'+grossweight+'</td><td>'+weight+'</td><td>'+carat+'</td><td>'+gold_rate+'</td><td>'+labour+'</td><td>'+other_charge+'</td><td id="total_this">'+total_this+'</td></tr>')
+                    counter = counter+1;
+                    
+                    $("#product_name").val('');
+                    $("#weight").val('');
+                    $("#labour").val('');
+                    $("#grossweight").val('');
+                    $("#estimate").html('');
+                    $("#other_charge").val('0');
+                    updatetotal();
+                }//end if radiovalue == pergram
+                else
+                {
+                    //mpr based -->weight*gold_rate + mrp(labour)
+                    var temp_var = parseInt(gold_rate)*parseFloat(weight);
+                    total_this = temp_var+parseInt(labour);
+                    total_this = total_this + parseFloat(other_charge);
+                    total_this = Math.round(total_this);
+                    total.push(total_this);
+                
+                    $("#table").append('<tr><td>'+product_name+'</td><td>'+hm_code+'</td><td>'+grossweight+'</td><td>'+weight+'</td><td>'+carat+'</td><td>'+gold_rate+'</td><td>'+labour+'</td><td>'+other_charge+'</td><td id="total_this">'+total_this+'</td></tr>') //<td><button id='+counter+' class="delete">Delete</button></td>
+                    counter = counter+1;
+                    
+                    $("#product_name").val('');
+                    $("#weight").val('');
+                    $("#labour").val('');
+                    $("#grossweight").val('');
+                    $("#estimate").html('');
+                    $("#other_charge").val('0');
+                    updatetotal();
+
+                }//end else if radiovalue pergram
+            }//end if not Empty
+                
+            else{
+                alert("all field must be value");
+            }  
+
+            $(".delete").on('click',function()
+            {
+                // for(var i=0;i<total.length;i++)
+                // {
+                //     alert(total[i]);
+                // }
+                index = $(this).attr('id');
+                alert(index);
+                index = index -1;
+                delete_row.push(total[index]);
+                alert(total[index]);
+                updatetotal();
+                updategst();
+                updatefinaltotal();
+                $(this).parent().parent().remove();
+                console.log(total);
+                console.log(delete_row);
+            }); //end delete
+
+            
+         
+
+        }); //end add product 
+    //delet product from  table
+
+    
+
+    // $(document).on('click', 'button.deletebtn', function () {
+    //     var id = $(this).attr('id');
+    //     id = id-1;
+        
+    //     var l = total.length;
+    //     l = l-1;
+    //     if(l===0)
+    //     {
+    //         total.pop();
+    //     }
+    //     else
+    //     {
+    //         total.splice(id,1);
+    //     }
+
+    //     // total.pop(total[id]);
+    //     updatetotal();
+    //     updategst();
+    //     updatefinaltotal();
+    //     $(this).closest('tr').remove();
+    //     counter = counter - 1;
+  
+    //  });
+
+
+
+
+    
+
+    });
+    
+    $("#grossweight").keyup(function()
+    {
+
+        var weight = $(this).val();
+        $("#weight").val(weight);
+    });//end grossweight change
+
+  
+    $("#gold_rate").change(function()
+    {
+        
+        var id = $(this).val();
+        
+        if(id == 1)
+        {
+            $("#carat").val(id);
+        }
+        else if (id == 2)
+        {
+            $("#carat").val(2);
+        }
+        else
+        {
+            $("#carat").val(3);
+        }
+        
+    }); //end gold rate carat change 
+
+    $("#carat").change(function()
+    {
+        var id = $(this).val();
+        // $("#gold_rate").val(id);
+    });//end of carat gold rate change
+    
+    
+    //search product 
+    $("#search_product").click(function()
+    {
+       pid =  $("#product_id").val();
+       token = '{{csrf_token}}'
+       d = {};
+       d['pid'] = pid;
+       
+       
+       if (pid!="")
+       {
+            $.ajax({
+                url:'gold',
+                type:'POST',
+                data:d,
+                headers:{"X-CSRFToken":token},
+                success:function(result)
+                {
+                    if(result['success'] == true)
+                    {
+                        $("#product_id").val('');
+                        $("#product_name").val(result['product_name'])  
+                        $("#hm_code").val(result['hm_code'])  
+                        $("#weight").val(result['weight'])
+                        $("#labour").val(result['labour'])
+                        $("#grossweight").val(result['grossweight'])
+                        if (result['carat'] == "22K")
+                        {
+                            $("#carat").val(1);
+                            
+                            $("#gold_rate").val(1);
+                        }
+                        else if(result['carat'] == "18K")
+                        {
+                            $("#carat").val(2);
+                            $("#gold_rate").val(2);
+                        }
+                        if(result['labour_type']=="pergram")
+                        {
+                           $("input[name=labour][value=pergram]").prop('checked','checked') 
+                        }
+                        else if(result['labour_type']=="mrp"){
+                            $("input[name=labour][value=mrp]").prop('checked','checked')
+                        }
+                        $("#estimate").html("<h6>Product Total : "+result['product_total']+"</h6><h6>Total With GST:"+result['invoice_total']+"</h6>")
+                    }   
+                    else{
+                        alert("Invalid Product Id")
+                    } 
+
+                }
+            })
+       }
+       else
+       {
+           alert("Empty Field")
+       }
+    });
+    //end search product
+    $("#finalsubmit").click(function()
+    {
+        if(confirm('Are you sure?')) {
+            customer_name = $("#customer_name").val();
+            phone_no = $("#contact_no").val();       
+            pan_no = $("#pan_no").val();
+            gst_no = $("#gst_no").val();
+            total_with_gst = $("#grandtotal").val();
+            product_total = $("#total").val();
+            sgst = $("#sgst").val();
+            cgst   = $("#cgst").val();
+            is_estimate = $("#is_estimate").find(":selected").val();
+            
+            if (customer_name !="" && total_with_gst !="" && product_total !="" && sgst !="" && cgst !="")
+            {
+                
+                var  counter = 1;
+                jsonObj  = [];
+                trs = $("#table").find('tr').each(function (i,el)
+                {
+                    var $tds = $(this).find('td'),
+                    product_name=$tds.eq(0).text(),
+                    hm_code = $tds.eq(1).text()
+                    grossweight = $tds.eq(2).text(),
+                    weight = $tds.eq(3).text(),
+                    carat = $tds.eq(4).text(),
+                    goldrate = $tds.eq(5).text(),
+                    labour = $tds.eq(6).text(),
+                    other_charge = $tds.eq(7).text();
+                    total = $tds.eq(8).text();
+                   
+                    if (product_name !=""&&hm_code !="" &&grossweight !="" &&weight!=""&&carat!="" &&goldrate !=""&&total !="")
+                    {
+                        item = {}
+                        item['product_name']= product_name;
+                        item['hm_code'] = hm_code;
+                        item['grossweight'] = grossweight;
+                        item['weight'] = weight;
+                        item['carat'] = carat;
+                        item['goldrate'] = goldrate;
+                        item['labour'] = labour
+                        item['total'] = total;
+                        item['other_charge'] = other_charge;
+                        
+                        jsonObj.push(item);
+                       
+                    }
+                        
+                });
+                jsonString = jsonObj;//product detail from table
+                if (jsonString !="")
+                {
+                    obj = {};
+                    obj.customer_name = customer_name;
+                    obj.phone_no = phone_no;
+                    obj.pan_no = pan_no;
+                    obj.gst_no = gst_no;
+                    obj.product_detail= jsonString;
+                    obj.total_with_gst = total_with_gst
+                    obj.product_total = product_total;
+                    obj.sgst = sgst;
+                    obj.cgst =cgst;
+                    obj.is_estimate = is_estimate;
+    
+                    obj = JSON.stringify(obj);
+                    
+                    token = '{{csrf_token}}';
+                    $("#finalsubmit").attr("disabled",true);
+                               
+                    $.ajax({
+                        url:"gold",
+                        type:'POST',
+                        cache:false,
+                        headers :{'X-CSRFToken':token},
+                        data:obj,
+                        success:function(result)
+                        {
+                            if (result != "null")
+                            {
+                                      
+                                $("#finalsubmit").attr("enable",true);              
+                                location.href=result;
+                            }
+                            else
+                            {
+                                alert("something went wrong!!! Error")
+                            }
+                        }
+                    });
+                }
+                else
+                {
+                    alert("Please Add Product")
+                }
+                
+            } //end if line no 157
+
+            else
+            {
+                alert("Empty Field");
+            }
+        } //end main if 
+        
+
+        
+        
+    });
+</script>
+<script>
+    
+    //autocomplete
+    $("#product_id").autocomplete({
+        source: "{% url 'autocomplete_pid' %}",
+    });
+ 
+</script>
+{%endblock%}

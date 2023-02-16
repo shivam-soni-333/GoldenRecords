@@ -1,0 +1,168 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+	<head>	
+			<meta charset="UTF-8">
+			<meta http-equiv="X-UA-Compatible" content="IE=edge">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>Document</title>
+			<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+			 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+			<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+			{%block head%}
+
+			{%endblock%}
+		  
+		<style>
+			
+			.table,.customer_info
+			{
+				border: 2px solid #800000;
+			};
+			.tbl_row
+			{
+				width:"100%";
+			}
+			@media print {
+			  #saveaspdf,#start_date,#end_date,#lbl_start_date,#lbl_end_date,#get_statement {
+			    display: none;
+			  }
+			}
+			
+
+		</style>
+	</head>
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+	<center>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="http://127.0.0.1:8000/dashboard">Home</a>
+              </li>
+			
+				<li class="nav-item">
+					<a class="nav-link active" aria-current="page" href="http://127.0.0.1:8000/one_month_statement">Gold statement</a>
+					</li>
+			  
+			</ul>
+		</div>
+	</center>
+    </nav>
+       <form method="post">
+		   {%csrf_token%}
+        <span id="lbl_start_date">Start date</span><input type="date" id="start_date" value="{{st_date}}{{start_date}}" name="start_date"></input>
+        <span id="lbl_end_date">End date</span><input type="date" id="end_date" value="{{end_date}}" name="end_date"></input>
+        <button id="get_statement">Get Statement</button>
+	</form>
+    {%if error%}
+    <div style="color: red;">
+        <h3><b>Invalid Date</b></h3>
+    </div>
+    {%endif%}
+	
+	<center>
+		<h1 style="color:#800000;;">Soni Rameshchandra Hiralal</h1>
+		{% if start_date %}
+			<h3>Invoice from {{start_date}} to {{end_date}} </h3>
+		{%endif%}
+	</center>
+
+	<button id="saveaspdf"  class="btn btn-info" style="float:right;" >Save As PDF</button>
+	<br><br><br>
+	<div class="main">
+		{% for i in data.values%}
+			
+			<p style="text-align: left;border: 2px solid #800000;">
+				<span  style="float: right;">
+								<b>Gold Invoice No :- {{i.invoice.invoice_number}}</b><br>
+								Date :- {{i.invoice.invoice_date}}</b>
+							</span>
+				<b>Customer Name :- {{i.invoice.customer_name}} </b>
+				<br>
+
+				Contact No:- {{i.invoice.customer_phone_number}}
+					<br>
+					
+						Pan Number :- {{i.invoice.pan_number}}
+								</b><br>
+					
+						GST Number :- {{i.invoice.gst_number}}
+				</p>
+
+				<table class = "bg" width=100%>
+					<tr>
+						<th style="border:2px solid;color:#800000;border-bottom:2px solid;color:#800000">Product Name</th>
+						<th style="border:2px solid ;color:#800000;border-bottom:2px solid;color:#800000" >HSN</th>
+						<th style="border:2px solid ;color:#800000;border-bottom:2px solid;color:#800000" >HM/HUID</th>
+						<th style="border:2px solid ;color:#800000;border-bottom:2px solid;color:#800000" >Gross Weight</th>
+						<th style="border:2px solid ;color:#800000;border-bottom:2px solid;color:#800000" >Net Weight</th>
+						<th style="border:2px solid;color:#800000;border-bottom:2px solid;color:#800000">Carat</th>
+						<th style="border:2px solid ;color:#800000;border-bottom:2px solid;color:#800000" >GoldRate(1GM)</th>
+						
+						<th style="border:2px solid;color:#800000;border-bottom:2px solid;color:#800000">Other Charges</th>
+						<th style="border:2px solid ;color:#800000;border-bottom:2px solid;color:#800000">Total</th>
+					</tr>
+				<tbody>
+		
+				{% for j in i.invoice_detail.values %}
+						<tr>
+							<td  style="border: 1px solid #800000;"><b>{{j.product_name}}</td>
+								{% if j.carat == "22K" %}
+									<td  style="border: 1px solid #800000;"><b>7113</td>
+								{%elif i.carat == "24K" %}
+									<td  style="border: 1px solid #800000;"><b>7114</td>
+								{%else%}
+									<td  style="border: 1px solid #800000;"><b>7113</td>
+								{%endif%}
+								<td style="border: 1px solid #800000;"><font size="4"><b>{{j.hm_code}}</font></td>
+								<td style="border: 1px solid #800000;"><b>{{j.grossweight}}</td>
+								<td style="border: 1px solid #800000;"><b>{{j.weight}}</b></td>
+								<td style="border: 1px solid #800000;"><b>{{j.carat}}</td>
+								<td style="border: 1px solid #800000;"><b>{{j.gold_rate}}</td>
+								{% if i.other_charge != 0.0 %}
+									<td style="border: 1px solid #800000;"><b>{{j.other_charge}}</td>
+								{%else%}
+									<td style="border: 1px solid #800000;"><b>-</td>
+								{%endif%} 
+								<td style="border-left: 1px solid #800000;border-right: 1px solid #800000;border-bottom: 1px solid #800000;border-right: 2px solid #800000;"><b>{{j.total}} </b></td>
+								
+						</tr>
+				{%endfor%}
+				</tbody>
+				</table>
+				<br>
+
+				<p style="text-align: right;border: 2px solid #800000;">
+				
+				</span>
+				
+				<!-- <br> --><!-- 
+				<span style="float: left;"></span> -->
+			
+				<b><span style="color: #800000;">Product Total</span> :- <span style="color:black;">{{i.invoice.pro_total}}</span><br>
+				
+					<span style="color:#800000;">CGST 1.5%</span> :- <span style="color:black;">{{i.invoice.cgst}}</span><br>
+					<span style="color:#800000;">SGST 1.5%</span> :- <span style="color:black;">{{i.invoice.sgst}}</span><br>
+					
+					<span style="color:#800000;">Invoice Total
+					</span>:-<span style="color:black;">{{i.invoice.invoice_total}}
+					
+					</span>
+					</b>
+				</p>
+				
+
+		{%endfor%}
+	</div>
+	<script>
+		$(document).ready(function()
+		{
+			$("#saveaspdf").click(function()
+			{
+				window.print();
+			});
+		});
+	</script>
+	
+</html>

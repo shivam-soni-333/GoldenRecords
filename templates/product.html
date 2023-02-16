@@ -1,0 +1,184 @@
+{% extends "header.html" %}
+{%block content%}
+
+ {% if not user.is_authenticated %}
+   <meta http-equiv="REFRESH" content="0;url=http://127.0.0.1:8000/">
+ {%endif%}
+<br>
+
+<form method="POST">
+    {% csrf_token %} 
+<div class="form-group">
+    <label for="exampleInputEmail1">Search Invoice</label>
+    <div class="col-lg-6">
+        <input type="text" class="form-control md" name="search_term" id="search"  placeholder="Search">
+        <button class="btn btn-primary">Search</button>
+    </div>
+        <small id="emailHelp" class="form-text text-muted">Search By Product ID,Product Name,Gross/Net Weight,Hm Code</small>
+        <br>
+  </div>    
+</form>
+
+{% if search_term%}
+<div class="search" style="font-size:20">
+   <form method="get">
+        <b> You Searched For:- {{search_term}}</b>
+        <br>
+        <b>
+            Count:- {{count}}
+            Weight:- {{weight}}
+        </b>
+        <button class="btn btn-primary">Clear</button>
+    </form>
+</div>
+{%endif%}
+    
+  <br>
+
+{% if error %}
+<div class="error" style=color:red id="error">
+        No Records Found
+</div>
+{%endif%}
+<span style="float:right;"><a href="http://127.0.0.1:8000/admin/dashboard/product/add/" target="_blank"><button class="btn btn-primary btn-sm">Add Product</button></a></span><br>
+<center><h3>Gold Stock</h3></center>
+
+<table class="table" id="table">
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Product ID</th>
+        <th scope="col">Product Name</th>
+        <th scope="col">Grossweight</th>
+        <th scope="col">Net Weight</th>
+        <th scope="col">HM Code</th>
+        <th scope="col">Labour</th>
+        <th scope="col">Carat</th>
+        <th scope="col">Labour Type</th>
+        <th scope="col">Supplier</th>
+        <th scope="col">Action</th>
+      
+    </tr>
+    </thead>
+    <tbody class="table_body">
+        {%for i in product%}
+       
+            {% if i.is_selled == "True"%}
+            <tr style=color:green>
+                <td scope="col">{{forloop.counter}}</td>     
+                <td scope="col">{{i.pid}} Sold</td>  
+                <td scope="col">{{i.name}}</td>
+                <td scope="col">{{i.grossweight}}</td>
+                <td scope="col">{{i.weight}}</td>
+                <td scope="col">{{i.hm_code}}</td>
+                <td scope="col">{{i.labour}}</td>
+                <td scope="col">{{i.carat}}</td>
+                <td scope="col">{{i.labour_type}}</td>
+                <td scope="col">{{i.supplier}}</td>
+                <td scope="col"><a href="http://127.0.0.1:8000/admin/dashboard/product/{{i.pid}}/change/" target="_blank">Edit/Delete</a></td>
+               
+</td>
+            </tr>
+            <!-- <td scope="col"><p style=color:green>{{i.id}} Sold</p></td> -->
+            {%else%}
+            <tr>
+                <td scope="col">{{forloop.counter}}</td>
+                <td scope="col">{{i.pid}}</td>  
+                <td scope="col">{{i.name}}</td>
+                <td scope="col">{{i.grossweight}}</td>
+                <td scope="col">{{i.weight}}</td>
+                <td scope="col">{{i.hm_code}}</td>
+                <td scope="col">{{i.labour}}</td>
+                <td scope="col">{{i.carat}}</td>
+                <td scope="col">{{i.labour_type}}</td>
+                <td scope="col">{{i.supplier}}</td>
+                <td scope="col"><a href="http://127.0.0.1:8000/admin/dashboard/product/{{i.pid}}/change/" target="_blank">Edit/Delete</a></td> 
+                
+</td>
+            </tr>
+            {% endif%}
+            
+        {%endfor%}
+        <br>
+    </tbody>
+</table>
+
+
+<!-- 
+<script>
+    $(document).ready(function()
+    {
+        var oldVal= "";
+        
+        $("#response_table").hide();
+        $("#search").keyup(function()
+        {
+
+            newVal = $(this).val();
+            if(newVal != oldVal )
+            {
+                if ( newVal!="")
+                {
+                    $("#error").html("")
+                    $("#response_table_body").html("");
+                    
+                    $("#table").show();
+                    $("#response_table").hide();
+                    d = {}
+                    d['search'] = newVal;
+                    d = JSON.stringify(d);
+                    token = '{{csrf_token}}'
+                    $.ajax({
+                        url:"product",
+                        type:"POST",
+                        data:d,
+                        headers:{"X-CSRFToken":token},
+                        success:function(result)
+                        {  
+                            if(result.length>0)
+                            {
+                                $("#table").hide();
+                                $("#response_table").show();
+                                oldVal=newVal;
+                                result.forEach(item=>
+                                {  
+                                    if(item['is_selled'] == "False")
+                                    {
+                                        $("#response_table_body").append("<tr><td>"+item['id']+"</td><td>"+item['name']+"</td><td>"+item['grossweight']+"</td><td>"+item['weight']+"</td><td>"+item['hm_code']+"</td><td>"+item['labour']+"</td><td>"+item['carat']+"</td><td>"+item['labour_type']+"</td><td>"+item['supplier']+"</td><td><a href='http://127.0.0.1:8000/admin/dashboard/product/"+item['id']+"/change/' target='_blank'>Edit/Delete</a></td> </tr>");
+                                    }
+                                    else
+                                    {
+                                        $("#response_table_body").append("<tr style=color:green><td>"+item['id']+" "+"Sold</td><td>"+item['name']+"</td><td>"+item['grossweight']+"</td><td>"+item['weight']+"</td><td>"+item['hm_code']+"</td><td>"+item['labour']+"</td><td>"+item['carat']+"</td><td>"+item['labour_type']+"</td><td>"+item['supplier']+"</td><td><a href='http://127.0.0.1:8000/admin/dashboard/product/"+item['id']+"/change/' target='_blank'>Edit/Delete</a></td></tr>");
+                                    }
+                                   
+                                });
+                            }
+                            else{
+                                $("#table").show();
+                                $("#response_table").hide();
+                                $("#error").html("No Records Found")
+                            }
+                            
+                        }
+                    })
+                }
+                else
+                {
+                    $("#response_table").hide();
+                    $("#table").show();
+
+                }
+            }
+           
+        });
+    });
+</script>
+ -->
+<script>
+    $(document).ready(function()
+    {
+        $("#search").focus();
+    });
+    
+</script>
+{%endblock%}

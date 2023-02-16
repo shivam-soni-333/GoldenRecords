@@ -1,0 +1,97 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <style>
+      .navbar{
+        background-color:#0ba6ff;
+      }
+      a:hover{
+        background-color: #E7717D;
+      }
+    
+    </style>
+    {%block head%}
+    {%endblock%}
+  </head>
+<body>
+    <!--  start header -->
+    <div class="test">
+    <nav class="navbar navbar-expand-lg ">
+        <div class="container-fluid">
+          {% if shop != "null" %}
+            <a class="navbar-brand" href="/dashboard" style="color:white">{{shop.name}}</a>
+          {%else%}
+          <a class="navbar-brand" href="#" style="color:red">Please Enter Shop Details</a>
+          {% endif%}
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="http://127.0.0.1:8000/dashboard" style="color:white">Home</a>
+              </li>
+               <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/gold" style="color:white">Gold</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/silver" style="color:white">Silver</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link"  href="http://127.0.0.1:8000/rate" style="color:white">Gold/silver Rate</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/gold_invoice" style="color:white">Gold Invoice</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/silver_invoice" style="color:white">Silver Invoice</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/product" style="color:white">Gold Stock</a>
+              </li>
+              
+              <li style="float:right">
+                <a class="nav-link" href="pid" style="color:white" >Product Id</a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/huid" style="color:white">HUID PRODUCT</a>
+              </li>
+              
+               <!-- Example single danger button -->
+               <li style="float:right">
+                <a class="nav-link" href="http://127.0.0.1:8000/sold"style="color:white" >Sold Items</a>
+              </li>
+              
+               
+              
+             
+
+              <li style="float:right">
+                <a class="nav-link" href="logout" style="color:white">Logout</a>
+              </li>
+            </ul>
+            <!-- <form class="d-flex">
+              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+              <button class="btn btn-outline-success" type="submit">Search</button>
+            </form> -->
+          </div>
+        </div>
+      </nav>
+    </div>
+      <marquee width="100%" direction="right" height="50px" scrollamount="12" style="color:red;font-size: 20px;">
+      <b>Gold 24KT {{rate.gold_biskit_price}} /- PER GRAM Gold 22KT {{rate.gold_22_kt_price}}  /- PER GRAM Gold 18 KT  {{rate.gold_18_kt_price}}  /- PER GRAM Silver 1KG {{rate.silver_1kg_price}}  /- PER KG Silver 1GM  {{rate.silver_1gm_price}} /- PER GRAM</b>
+      </marquee>
+
+      <!-- end header -->
+      
+{% block content %}
+{% endblock %}
+</body>
+</html>

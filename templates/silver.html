@@ -1,0 +1,373 @@
+{%extends "header.html"%}
+
+    {%block head%}
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css"
+    rel="Stylesheet" type="text/css" />
+    <style>
+            table, th, td {
+            border: 1px solid black;
+            padding: 5px;
+            }
+            table {
+            border-spacing: 15px;
+            }
+            .customerarea{
+                border-style:solid;
+            }
+            .product,.producttable,.search_product{
+                border-style:solid;
+            }
+            .ui-menu-item
+            {
+                background-color:aqua  !important;
+            }
+
+            input[type=radio] {
+                border: 0px;
+                width: 2.5%;
+                height: 2em;
+            }
+
+        </style>
+    
+    {%endblock%}
+
+    {%block content%}
+
+ {% if not user.is_authenticated %}
+   <meta http-equiv="REFRESH" content="0;url=http://127.0.0.1:8000/">
+ {%endif%}
+        <h3><center>Silver Invoice</center></h3>
+        <div class="customerarea">    
+            <br>
+            Customer Name <input id="customer_name" type="text" name="customername" placeholder="Customername"></input>
+            Phone Number <input type="number" id="contact_no" name="number" placeholder="phone no "></input>
+            Pan Number <input type="text" id="pan_no" value="" placeholder="PANCARD"></input>
+
+            GST Number <input type="text" id="gst_no" value="" placeholder="Gst Number"></input>
+            <br>
+            <br>
+            <br><br>
+        </div>
+        <br>
+        <div class="search_product">
+            <br>
+            <!-- Product ID:- <input type="text" id="product_id"></input>
+             --><!-- <button id="search_product" class="btn btn-primary">Search</button> -->
+            <span style="font-size: 20px;">Estimate Receipt <select id="is_estimate">
+            <option value="1">Yes</option>
+            <option value="0" selected>No </option>
+        </select>
+        </span>
+            <br><br>
+        </div>
+        <br>
+        <div class="product">
+            <br>
+
+    
+            <center>
+            <label style="display:block">
+                <input type="radio"   value="pergram" name="labour" >Labour Per Gram</input>    <input type="radio" value="mrp" name="labour" checked>MRP Based</input>
+            </label>
+            </center><br>
+            Product Name<input type="text" id="product_name">Weight<input type="text" id="weight"></input><br><br>
+            {%if rate != "null"%}
+                Silver Rate
+                <input type="text" id="silver_rate" value={{rate.silver_1gm_price}}></input>
+            {%else%}
+                <h6 style="color:red">Please Input Today's Gold Rate</h6>
+            {% endif %}
+            Labour<input type="text" id="labour"></input>
+            <br>
+            <br><button id="add_pro">Add Product</button>
+            <div id="estimate">
+            
+            </div>
+            <br><br>
+            <br>
+        </div>
+        <br>
+        <div class="producttable">
+            <br>
+            <table id="table" border="3">
+                <thead>
+                
+                    <th>Product name</th>
+                    <th>Weight</th>
+                    <th>SilverRate</th>
+                    <th>total</th>
+                  
+                </thead>
+                <tr>
+    
+                </tr>
+            </table><br><br>
+            Item Total <input type="text" value="0" id="total" autocomplete=off></input>
+            SGST <input type="text" value="0" id="sgst" autocomplete=off></input>
+            CGST<input type='text' id="cgst" value="0" autocomplete=off></input>
+            Total <input type="text" id="grandtotal" value="0" autocomplete=off></input>
+            <br><br>
+        </div>
+        <br>
+    <center><button  id="finalsubmit" class="btn btn-primary">Submit</button></center>
+
+    <script>
+        $(document).ready(function()
+        {
+            var counter = 1;
+            const total = [];
+
+            function updatetotal()
+            {
+                let sum = 0;
+                for(i=0;i<total.length;i++)
+                {
+                    sum +=  total[i];
+                    console.log(sum);
+                }
+                sum = Math.round(sum);
+                $("#total").val(sum);
+                updategst();
+            }
+
+            function updategst()
+            {
+                total_val = $("#total").val();
+                gst = parseInt(total_val)*3/100;
+                gst = gst/2;
+                $("#sgst").val(gst);
+                $("#cgst").val(gst);
+                updatefinaltotal();
+            }
+
+            function updatefinaltotal()
+            {
+                total_val = $("#total").val();
+                sgst = $("#sgst").val();
+                cgst = $("#cgst").val();
+                grand_total = parseFloat(total_val) + parseFloat(sgst) + parseFloat(cgst) ;
+                grand_total = Math.round(grand_total);
+                $("#grandtotal").val(grand_total);
+            }
+
+            //add product to table code starts
+            $("#add_pro").click(function()
+            {
+                customer = $("#customer_name").val();
+                phone = $("#contact_no").val();
+                product_name = $("#product_name").val();
+                silver_rate = $("#silver_rate").val();
+                weight = $("#weight").val();
+                labour = $("#labour").val();
+                
+                $("#estimate").html("");
+                var radioValue = $("input[name='labour']:checked").val();
+               
+                if( product_name !="" && weight  !="" && silver_rate !="" && labour != ""  )
+                {
+                    if(radioValue=="pergram")
+                    {
+                        //pergram --> labour + silver_rate * weight
+                        temp_var = parseInt(silver_rate)  + parseInt(labour);
+                        total_this = temp_var * parseFloat(weight);
+
+                        total_this = Math.round(total_this);
+                        total.push(total_this);
+                    
+                        $("#table").append('<tr><td>'+product_name+'</td><td>'+weight+'</td><td>'+silver_rate+'</td><td d="total_this">'+total_this+'</td></tr>')
+                        counter = counter+1;
+                        
+                        $("#product_name").val('');
+                        $("#weight").val('');
+                        $("#labour").val('');
+                        updatetotal();
+                    
+                    }//end if line no 126
+                    else 
+                    {
+                        //mrpbased -->weight * silver rate + labour
+                        temp_var = parseFloat(weight) * parseFloat(silver_rate);
+                        total_this = temp_var + parseInt(labour);
+
+                        total_this = Math.round(total_this);
+                        total.push(total_this);
+                    
+                        $("#table").append('<tr><td>'+product_name+'</td><td>'+weight+'</td><td>'+silver_rate+'</td><td d="total_this">'+total_this+'</td></tr>')
+                        counter = counter+1;
+                        
+                        $("#product_name").val('');
+                        $("#weight").val('');
+                        $("#labour").val('');
+                        updatetotal();   
+                    }//end else (if line no 126)
+                    
+                }//end if line no 124
+                else
+                {
+                    alert("Empty Filed")
+                }//end else if line no 124
+            });
+            //add product to table code ends
+            
+            //delet product from  table
+            $(document).on('click', 'button.deletebtn', function () {
+                var id = $(this).attr('id');
+
+                total.pop(total[id]);
+                updatetotal();
+                updategst();
+                updatefinaltotal();
+                $(this).closest('tr').remove();
+                counter = counter - 1;
+        
+            });//end delete product from table
+
+             //search product 
+            $("#search_product").click(function()
+            {
+            pid =  $("#product_id").val();
+            token = '{{csrf_token}}'
+            d = {};
+            d['pid'] = pid;
+            
+            
+            if (pid!="")
+            {
+                    $.ajax({
+                        url:'silver',
+                        type:'POST',
+                        data:d,
+                        headers:{"X-CSRFToken":token},
+                        success:function(result)
+                        {
+                            if(result['success'] == true)
+                            {
+                                $("#product_id").val('');
+                                $("#product_name").val(result['product_name'])  
+                                $("#weight").val(result['weight'])
+                                $("#labour").val(result['labour'])
+                                if(result['labour_type']=="pergram")
+                                {
+                                $("input[name=labour][value=pergram]").prop('checked','checked') 
+                                }
+                                else if(result['labour_type']=="mrp"){
+                                    $("input[name=labour][value=mrp]").prop('checked','checked')
+                                }
+                                $("#estimate").html("<h6>Product Total : "+result['product_total']+"</h6><h6>Total With GST:"+result['invoice_total']+"</h6>")
+                            }   
+                            else{
+                                alert("Invalid Product Id")
+                            } 
+
+                        }
+                    })
+            }
+            else
+            {
+                alert("Empty Field")
+            }
+            });
+            //end search product
+        
+            $("#finalsubmit").click(function(e)
+            {
+                
+                $("#finalsubmit").attr("disabled",true);
+                if(confirm('Are you sure?')) 
+                {
+                    e.preventDefault();
+                    customer_name = $("#customer_name").val();
+                    phone_no = $("#contact_no").val();       
+                    pan_no = $("#pan_no").val();
+                    gst_no = $("#gst_no").val();
+                    total_with_gst = $("#grandtotal").val();
+                    product_total = $("#total").val();
+                    sgst = $("#sgst").val();
+                    cgst   = $("#cgst").val();
+                    is_estimate = $("#is_estimate").find(":selected").val();
+                    if (customer_name !=""  && total_with_gst !="" && product_total !="" && sgst !="" && cgst !="")
+                    {
+                        
+                        var  counter = 1;
+                        jsonObj  = [];
+                        trs = $("#table").find('tr').each(function (i,el)
+                        {
+                            var $tds = $(this).find('td'),
+                            product_name=$tds.eq(0).text(),
+                            weight = $tds.eq(1).text(),
+                            silverrate = $tds.eq(2).text(),
+                            total = $tds.eq(3).text();
+                            if (product_name !="" &&weight!=""&&silverrate !=""&&total !="")
+                            {
+                                item = {}
+                                item['product_name']= product_name;
+                                item['weight'] = weight;
+                                item['silverrate'] = silverrate;
+                                item['total'] = total;
+                                
+                                jsonObj.push(item);
+                            }
+                                
+                        });
+                        jsonString = jsonObj;//product detail from table
+                        obj = {};
+                        obj.customer_name = customer_name;
+                        obj.phone_no = phone_no;
+                        obj.pan_no = pan_no;
+                        obj.gst_no = gst_no;
+                        obj.product_detail= jsonString;
+                        obj.total_with_gst = total_with_gst
+                        obj.product_total = product_total;
+                        obj.sgst = sgst;
+                        obj.cgst =cgst;
+                        obj.is_estimate = is_estimate;
+
+                        obj = JSON.stringify(obj);
+                        $("#finalsubmit").attr("disabled",true);
+                        token = '{{csrf_token}}';
+                        $.ajax({
+                            url:"silver",
+                            type:'POST',
+                            cache:false,
+                            headers :{'X-CSRFToken':token},
+                            data:obj,
+                            success:function(result)
+                            {
+                                if (result != null)
+                                {
+
+                                    location.href=result;
+                                }
+                                else
+                                {
+                                    alert("something went wrong!!! Error")
+                                }
+                            }
+                        });
+                    } //end if line no 194
+                    else
+                    {    
+                        $("#finalsubmit").removeAttr("disabled");
+                        alert("Empty Field");
+
+                    }
+                } //end main if  are you sure
+                else
+                {
+                    
+                    $("#finalsubmit").removeAttr("disabled");
+                }
+                
+            });//end finalsubmit code
+
+        });//end document ready
+    </script>
+    <script>
+         //autocomplete
+           
+    </script>
+        
+
+    {%endblock%}

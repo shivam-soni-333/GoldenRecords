@@ -1,0 +1,151 @@
+{%load static%}
+
+<!DOCTYPE html>
+<html>
+	<head>	
+			<meta charset="UTF-8">
+			<meta http-equiv="X-UA-Compatible" content="IE=edge">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>Document</title>
+			<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+			 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+			<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+			{%block head%}
+
+			{%endblock%}
+		  
+		<style>
+			
+			.table,.customer_info
+			{
+				border: 2px solid #800000;
+			};
+			.tbl_row
+			{
+				width:"100%";
+			}
+			@media print {
+			  #saveaspdf,#start_date,#end_date,#lbl_start_date,#lbl_end_date,#get_statement {
+			    display: none;
+			  }
+			}
+			
+
+		</style>
+	</head>
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+	<center>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="http://127.0.0.1:8000/dashboard">Home</a>
+              </li>
+			  <li class="nav-item">
+				<a class="nav-link active" aria-current="page" href="http://127.0.0.1:8000/one_month_silver_statement">Silver statement</a>
+				</li>
+			</ul>
+		</div>
+	</center>
+    </nav>
+       <form method="post">
+		   {%csrf_token%}
+		   
+        <span id="lbl_start_date">Start date</span><input type="date" id="start_date" value="{{st_date}}{{start_date}}" name="start_date"></input>
+        <span id="lbl_end_date">End date</span><input type="date" id="end_date" value="{{end_date}}" name="end_date"></input>
+        <button id="get_statement">Get Statement</button>
+	</form>
+    {%if error%}
+    <div style="color: red;">
+        <h3><b>Invalid Date</b></h3>
+    </div>
+    {%endif%}
+	
+	<center>
+		<h1 style="color:#800000;;">Soni Rameshchandra Hiralal</h1>
+		{% if start_date %}
+			<h3>Sliver Invoice from {{start_date}} to {{end_date}} </h3>
+		{%endif%}
+	</center>
+
+	<button id="saveaspdf"  class="btn btn-info" style="float:right;" >Save As PDF</button>
+	<br><br><br>
+	<div class="main">
+		{% for i in data.values%}
+			
+			<p style="text-align: left;border: 2px solid #800000;">
+				<span  style="float: right;">
+								<b>Sliver Invoice No :- {{i.invoice.invoice_number}}<br></b>
+								Date :- {{i.invoice.invoice_date}}</b>
+							</span>
+				<b>Customer Name :- {{i.invoice.customer_name}} </b>
+				<br>
+
+				Contact No:- {{i.invoice.customer_phone_number}}
+					<br>
+					
+						Pan Number :- {{i.invoice.pan_number}}
+								<br>
+					
+						GST Number :- {{i.invoice.gst_number}}
+				</p>
+
+				<table class = "bg" width=100%>
+					<tr>
+						<th style="border:2px solid;color:#800000;border-bottom:2px solid;color:#800000">Product Name</th>
+						<th style="border:2px solid ;color:#800000;border-bottom:2px solid;color:#800000" >HSN</th>
+						<th style="border:2px solid ;color:#800000;border-bottom:2px solid;color:#800000" >Net Weight</th>
+			
+						<th style="border:2px solid ;color:#800000;border-bottom:2px solid;color:#800000" >SliverRate(1GM)</th>
+						
+						<th style="border:2px solid ;color:#800000;border-bottom:2px solid;color:#800000">Total</th>
+					</tr>
+				<tbody>
+		
+				{% for j in i.invoice_detail.values %}
+						<tr>
+							<td  style="border: 1px solid #800000;"><b>{{j.product_name}}</td>
+								<td  style="border: 1px solid #800000;"><b>7106</td>
+								<td style="border: 1px solid #800000;"><b>{{j.weight}}</b></td>
+								<td style="border: 1px solid #800000;"><b>{{j.silver_rate}}</td>
+							
+								<td style="border-left: 1px solid #800000;border-right: 1px solid #800000;border-bottom: 1px solid #800000;border-right: 2px solid #800000;"><b>{{j.total}} </b></td>
+								
+						</tr>
+				{%endfor%}
+				</tbody>
+				</table>
+				<br>
+
+				<p style="text-align: right;border: 2px solid #800000;">
+				
+				</span>
+				
+				<!-- <br> --><!-- 
+				<span style="float: left;"></span> -->
+			<b>
+				<span style="color: #800000;">Product Total</span> :- <span style="color:black;"><b>{{i.invoice.pro_total}}</b></span><br>
+				
+					<span style="color:#800000;">CGST 1.5%</span> :- <span style="color:black;"><b>{{i.invoice.cgst}}</b></span><br>
+					<span style="color:#800000;">SGST 1.5%</span> :- <span style="color:black;"><b>{{i.invoice.sgst}}</b></span><br>
+					
+					<span style="color:#800000;">Invoice Total
+					</span>:-<span style="color:black;"><b>{{i.invoice.invoice_total}}</b>
+					
+					</span>
+					</b>
+				</p>
+				
+
+		{%endfor%}
+	</div>
+	<script>
+		$(document).ready(function()
+		{
+			$("#saveaspdf").click(function()
+			{
+				window.print();
+			});
+		});
+	</script>
+	
+</html>
